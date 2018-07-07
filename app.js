@@ -11,16 +11,14 @@ const express               = require('express'),
 let app = express();
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-
-  app.use(require('express-session')({
+app.use(require('express-session')({
           secret: "sure bro",
           resave: false,
           saveUninitialized: false
           }));
+          
+app.use(passport.initialize());
+app.use(passport.session());        
           
 passport.use(new LocalStrategy(User.authenticate()));        
 passport.serializeUser(User.serializeUser());
@@ -35,8 +33,8 @@ app.get('/', (req, res) => {
     res.render('home');
 });
 
-app.get("/secret", (req, res) => {
-    res.render('secret');
+app.get("/secret", isLoggedIn, function(req, res){
+   res.render("secret"); 
 });
 
 //show sign up form
@@ -70,6 +68,20 @@ app.post('/login', passport.authenticate('local', {
 }),  (req, res) => {
     
 });
+
+app.get('/logout', (req, res) => {
+      req.logout();
+      res.redirect('/');
+});
+
+
+function isLoggedIn(req, res, next) {
+    if(req.isAuthenticated()){
+       return next();
+    } 
+    res.redirect('/login');
+
+};
 
 
 app.listen(process.env.PORT, process.env.IP, () => {

@@ -22,7 +22,7 @@ app.use(passport.session());
           saveUninitialized: false
           }));
           
-        
+passport.use(new LocalStrategy(User.authenticate()));        
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
@@ -57,6 +57,20 @@ app.post('/register', (req, res) => {
         });
       });
     });
+    
+    //LOGIN ROUTES
+//render login form
+app.get('/login', (req, res) => {
+    res.render('login')
+})
+//login logic
+app.post('/login', passport.authenticate('local', {
+    successRedirect: '/secret',
+    failureRedirect: 'login'
+}),  (req, res) => {
+    
+});
+
 
 app.listen(process.env.PORT, process.env.IP, () => {
     console.log("server started.......");

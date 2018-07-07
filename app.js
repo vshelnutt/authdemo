@@ -10,17 +10,26 @@ const express               = require('express'),
       
 let app = express();
 app.set('view engine', 'ejs');
+app.use(bodyParser.urlencoded({extended: true}));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
 
   app.use(require('express-session')({
           secret: "sure bro",
           resave: false,
           saveUninitialized: false
           }));
+          
+        
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+
+//=============
+//ROUTES
+//=============          
 
 app.get('/', (req, res) => {
     res.render('home');
@@ -29,6 +38,25 @@ app.get('/', (req, res) => {
 app.get("/secret", (req, res) => {
     res.render('secret');
 });
+
+//show sign up form
+app.get('/register', (req, res) => {
+    res.render('register');
+});
+//handle user sign up
+app.post('/register', (req, res) => {
+    req.body.username
+    req.body.password
+    User.register(new User({username: req.body.username}), req.body.password, (err, user) => {
+        if(err){
+            console.log(err);
+            return res.render('register');
+        }
+        passport.authenticate("local")(req, res, () => {
+            res.redirect('/secret');
+        });
+      });
+    });
 
 app.listen(process.env.PORT, process.env.IP, () => {
     console.log("server started.......");
